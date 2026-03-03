@@ -2,9 +2,9 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // 瀏覽器測試用
+    // 瀏覽器測試
     if (request.method === "GET" && url.pathname === "/") {
-      return new Response("OK - 副 Bot 正常運行（已加入保護）", { status: 200 });
+      return new Response("OK - 副 Bot 正常運行", { status: 200 });
     }
 
     // LINE Webhook
@@ -17,20 +17,13 @@ export default {
           return new Response("OK", { status: 200 });
         }
 
-        const userId = event.source.userId;
         const userMessage = event.message.text;
         const replyToken = event.replyToken;
 
-        console.log(`收到訊息 | UserID: ${userId} | 訊息: ${userMessage}`);
+        console.log(`收到訊息: ${userMessage}`);
 
-        // ==================== 白名單保護 ====================
-        if (userId !== env.ALLOWED_USER_ID) {
-          console.log(`非授權用戶 (${userId})，已忽略`);
-          return new Response("OK", { status: 200 });
-        }
-
-        // ==================== 只有你能使用的回覆 ====================
-        const replyText = `✅ 已收到你的訊息：\n「${userMessage}」\n\n我是你的私人電郵助理 Bot。\n\n有什麼可以幫到你？`;
+        // 簡單回覆（暫時不做保護）
+        const replyText = `收到：「${userMessage}」\n\n我是你的電郵助理 Bot。\n有什麼可以幫到你？`;
 
         await fetch("https://api.line.me/v2/bot/message/reply", {
           method: "POST",
