@@ -20,12 +20,21 @@ export default {
         const userMessage = event.message.text;
         const replyToken = event.replyToken;
 
-        console.log(`收到訊息: ${userMessage}`);
+        // 白名單：只允許指定的 userId 控制（你的個人 UID）
+        const fromUserId = event?.source?.userId;
 
-        // 簡單回覆（暫時不做保護）
+        // 如果拿不到 userId，或不是白名單 → 直接忽略、不回覆
+        if (!fromUserId || fromUserId !== env.LINE_ALLOWED_USER_ID) {
+          console.log(`已忽略非白名單訊息，fromUserId=${fromUserId}`);
+          return new Response("OK", { status: 200 });
+        }
+
+        console.log(`收到白名單訊息: ${userMessage}`);
+
+        // 簡單回覆
         const replyText = `收到：「${userMessage}」\n\n我是你的電郵助理 Bot。\n有什麼可以幫到你？`;
 
-        await fetch("https://api.line.me/v2/bot/message/reply", {
+        const resp = await fetch("https://api.line.me/v2/bot/message/reply", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -36,6 +45,12 @@ export default {
             messages: [{ type: "text", text: replyText }]
           })
         });
+
+        // 方便你 debug：如果 LINE 回覆 API 出錯，印出狀態碼
+        if (!resp.ok) {
+          const t = await resp.text();
+          console.error("Reply API 失敗:", resp.status, t);
+        }
 
         return new Response("OK", { status: 200 });
 
