@@ -20,18 +20,29 @@ export default {
         const userMessage = event.message.text;
         const replyToken = event.replyToken;
 
-        // 白名單：只允許指定的 userId 控制（你的個人 UID）
+        // ==================== Debug 開始 ====================
+        console.log("=== LINE Webhook Debug ===");
+        console.log("你的白名單 UID (env):", env.LINE_ALLOWED_USER_ID || "【未設定！】");
+        console.log("收到事件的 source 完整內容:", JSON.stringify(event.source));
+        console.log("提取到的 fromUserId:", event?.source?.userId);
+        // ==================== Debug 結束 ====================
+
+        // 白名單判斷
         const fromUserId = event?.source?.userId;
 
-        // 如果拿不到 userId，或不是白名單 → 直接忽略、不回覆
-        if (!fromUserId || fromUserId !== env.LINE_ALLOWED_USER_ID) {
-          console.log(`已忽略非白名單訊息，fromUserId=${fromUserId}`);
+        if (!fromUserId) {
+          console.log("❌ 拿不到 userId，可能是群組權限問題");
           return new Response("OK", { status: 200 });
         }
 
-        console.log(`收到白名單訊息: ${userMessage}`);
+        if (fromUserId !== env.LINE_ALLOWED_USER_ID) {
+          console.log(`❌ 非白名單用戶 → fromUserId: ${fromUserId}`);
+          return new Response("OK", { status: 200 });
+        }
 
-        // 簡單回覆
+        console.log(`✅ 白名單通過！收到訊息: ${userMessage}`);
+
+        // 回覆訊息
         const replyText = `收到：「${userMessage}」\n\n我是你的電郵助理 Bot。\n有什麼可以幫到你？`;
 
         const resp = await fetch("https://api.line.me/v2/bot/message/reply", {
@@ -46,10 +57,8 @@ export default {
           })
         });
 
-        // 方便你 debug：如果 LINE 回覆 API 出錯，印出狀態碼
         if (!resp.ok) {
-          const t = await resp.text();
-          console.error("Reply API 失敗:", resp.status, t);
+          console.error("Reply API 失敗:", resp.status);
         }
 
         return new Response("OK", { status: 200 });
