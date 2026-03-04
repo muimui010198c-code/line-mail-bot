@@ -20,32 +20,12 @@ export default {
         const userMessage = event.message.text;
         const replyToken = event.replyToken;
 
-        // ==================== Debug 開始 ====================
-        console.log("=== LINE Webhook Debug ===");
-        console.log("你的白名單 UID (env):", env.LINE_ALLOWED_USER_ID || "【未設定！】");
-        console.log("收到事件的 source 完整內容:", JSON.stringify(event.source));
-        console.log("提取到的 fromUserId:", event?.source?.userId);
-        // ==================== Debug 結束 ====================
+        console.log(`收到訊息: ${userMessage}`);
 
-        // 白名單判斷
-        const fromUserId = event?.source?.userId;
-
-        if (!fromUserId) {
-          console.log("❌ 拿不到 userId，可能是群組權限問題");
-          return new Response("OK", { status: 200 });
-        }
-
-        if (fromUserId !== env.LINE_ALLOWED_USER_ID) {
-          console.log(`❌ 非白名單用戶 → fromUserId: ${fromUserId}`);
-          return new Response("OK", { status: 200 });
-        }
-
-        console.log(`✅ 白名單通過！收到訊息: ${userMessage}`);
-
-        // 回覆訊息
+        // 簡單回覆（暫時不做保護）
         const replyText = `收到：「${userMessage}」\n\n我是你的電郵助理 Bot。\n有什麼可以幫到你？`;
 
-        const resp = await fetch("https://api.line.me/v2/bot/message/reply", {
+        await fetch("https://api.line.me/v2/bot/message/reply", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -56,10 +36,6 @@ export default {
             messages: [{ type: "text", text: replyText }]
           })
         });
-
-        if (!resp.ok) {
-          console.error("Reply API 失敗:", resp.status);
-        }
 
         return new Response("OK", { status: 200 });
 
