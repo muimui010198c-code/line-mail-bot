@@ -5,3 +5,6 @@ compatibility_date = "2026-03-02"
 [observability]
 enabled = true
 head_sampling_rate = 1
+[[kv_namespaces]]
+binding = "KV"
+id = "63ce15e1217c4a2fbbb75a476219ef3d"
