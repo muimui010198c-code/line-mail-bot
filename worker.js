@@ -50,7 +50,7 @@ export default {
             console.log(`Rate limit: ${userId}`);
             continue;
           }
-          await env.KV.put(rateKey, now.toString(), { expirationTtl: 10 });
+          await env.KV.put(rateKey, now.toString(), { expirationTtl: 60 });
 
           // 你最強最兇的髒話過濾（完全保留，一字不改！）
           const badWords = ["pussy","cunt","nigger","nigga","屌","屌你","屌那","柒頭","撚樣","撚你","𨳒","𨳊","𨳍","屄","屪","閪","尻","傻𨳊","傻閪","操你媽","操妳媽","操你妈","操妳妈","肏","干你娘","幹你娘","幹你妈","幹你媽","雞巴","雞芭","雞掰","機掰","機巴","雞歪","靠北","靠杯","靠背","靠腰","靠妖","媽逼","媽批"];
